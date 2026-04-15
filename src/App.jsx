@@ -3,12 +3,14 @@ import Dashboard from './components/Dashboard'
 import Atendimento from './components/Atendimento'
 import Canais from './components/Canais'
 import NuvemshopPlanning from './components/NuvemshopPlanning'
+import Orquestrador from './components/Orquestrador'
 
 const TABS = [
-  { id: 'dashboard',   label: 'Painel',          icon: '◎' },
-  { id: 'atendimento', label: 'Atendimento IA',  icon: '◈' },
-  { id: 'canais',      label: 'Canais',           icon: '⬡' },
-  { id: 'nuvemshop',  label: 'Nuvemshop',        icon: '◇' },
+  { id: 'dashboard',     label: 'Painel',          icon: '◎' },
+  { id: 'orquestrador',  label: 'Orquestrador',    icon: '◉' },
+  { id: 'atendimento',   label: 'Atendimento IA',  icon: '◈' },
+  { id: 'canais',        label: 'Canais',           icon: '⬡' },
+  { id: 'nuvemshop',    label: 'Avaliação NS',     icon: '◇' },
 ]
 
 export default function App() {
@@ -121,10 +123,11 @@ export default function App() {
         width: '100%',
         margin: '0 auto',
       }}>
-        {active === 'dashboard'   && <Dashboard />}
-        {active === 'atendimento' && <Atendimento />}
-        {active === 'canais'      && <Canais />}
-        {active === 'nuvemshop'  && <NuvemshopPlanning />}
+        {active === 'dashboard'    && <Dashboard />}
+        {active === 'orquestrador' && <Orquestrador />}
+        {active === 'atendimento'  && <Atendimento />}
+        {active === 'canais'       && <Canais />}
+        {active === 'nuvemshop'   && <NuvemshopPlanning />}
       </main>
     </div>
   )

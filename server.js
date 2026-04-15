@@ -142,6 +142,63 @@ app.post('/api/nuvemshop', async (req, res) => {
   }
 })
 
+// ─── Orientação por tarefa (Orquestrador) ────────────────────────────────────
+
+const ORIENTAR_PROMPT = `Você é um consultor prático de e-commerce especializado em Nuvemshop e varejo de produtos infantis no Brasil.
+
+CONTEXTO DA LOJA:
+- Piccolo Bambino: loja física de produtos infantis (roupas, brinquedos e acessórios, bebês a 10 anos)
+- Bling ERP já implantado com estoque e NFC-e funcionando
+- Mercado Livre integrado ao Bling
+- WhatsApp com 3 atendentes
+- Objetivo atual: implantar Nuvemshop como 4º canal de vendas
+
+INSTRUÇÃO:
+O usuário está executando uma tarefa específica do setup da Nuvemshop. Forneça orientação PRÁTICA e DIRETA.
+Retorne EXCLUSIVAMENTE um objeto JSON válido, sem markdown, sem texto adicional.
+
+O JSON deve ter exatamente estas chaves:
+{
+  "orientacao": <string: explicação clara do que fazer nesta tarefa — máximo 3 parágrafos curtos>,
+  "passos": <array de strings: lista de 3 a 6 passos numerados, acionáveis e específicos para esta tarefa>,
+  "dica_piccolo": <string: dica específica para loja de produtos infantis — diferencial prático>,
+  "cuidado": <string ou null: armadilha comum nesta etapa que deve evitar>,
+  "tempo_estimado": <string: ex. "20 minutos", "1-2 horas", "meia tarde">
+}`
+
+app.post('/api/orientar', async (req, res) => {
+  const { fase, tarefa, notas } = req.body
+
+  if (!fase || !tarefa) {
+    return res.status(400).json({ error: 'Fase e tarefa são obrigatórios.' })
+  }
+
+  try {
+    const message = await client.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 1000,
+      system: ORIENTAR_PROMPT,
+      messages: [
+        {
+          role: 'user',
+          content: `Fase do setup: ${fase}\nTarefa: ${tarefa}${notas ? `\nContexto adicional: ${notas}` : ''}\n\nRetorne a orientação em JSON.`,
+        },
+      ],
+    })
+
+    const raw = message.content[0].text.trim()
+    const jsonStart = raw.indexOf('{')
+    const jsonEnd = raw.lastIndexOf('}')
+    const jsonStr = raw.slice(jsonStart, jsonEnd + 1)
+    const result = JSON.parse(jsonStr)
+
+    res.json(result)
+  } catch (err) {
+    console.error('[orientar error]', err.message)
+    res.status(500).json({ error: 'Falha ao gerar orientação. Verifique a API key.' })
+  }
+})
+
 // ─── Servir build React em produção ─────────────────────────────────────────
 
 if (isProd) {
