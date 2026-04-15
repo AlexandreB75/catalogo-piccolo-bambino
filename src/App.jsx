@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import AnalysisEngine from './components/AnalysisEngine'
-import Pipeline from './components/Pipeline'
-import Architecture from './components/Architecture'
+import Dashboard from './components/Dashboard'
+import Atendimento from './components/Atendimento'
+import Canais from './components/Canais'
+import NuvemshopPlanning from './components/NuvemshopPlanning'
 
 const TABS = [
-  { id: 'analysis',      label: 'Motor de Análise', icon: '◎' },
-  { id: 'pipeline',      label: 'Pipeline',          icon: '◈' },
-  { id: 'architecture',  label: 'Arquitetura',       icon: '⬡' },
+  { id: 'dashboard',   label: 'Painel',          icon: '◎' },
+  { id: 'atendimento', label: 'Atendimento IA',  icon: '◈' },
+  { id: 'canais',      label: 'Canais',           icon: '⬡' },
+  { id: 'nuvemshop',  label: 'Nuvemshop',        icon: '◇' },
 ]
 
 export default function App() {
-  const [active, setActive] = useState('analysis')
+  const [active, setActive] = useState('dashboard')
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -32,7 +34,7 @@ export default function App() {
             letterSpacing: '0.01em',
             lineHeight: 1.1,
           }}>
-            Lótus <span style={{ fontWeight: 400 }}>Business</span>
+            Piccolo <span style={{ fontWeight: 400 }}>Bambino</span>
           </h1>
           <p style={{
             fontFamily: 'var(--font-mono)',
@@ -42,26 +44,32 @@ export default function App() {
             textTransform: 'uppercase',
             marginTop: 5,
           }}>
-            Prospecção Inteligente · Itapema SC
+            Gestão Multi-Canal · Loja Física
           </p>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           <div style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.68rem',
-            color: 'var(--gold-dim)',
-            letterSpacing: '0.08em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            padding: '8px 14px',
           }}>
-            Claude API
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4CAF50', display: 'inline-block' }} />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>
+              Bling · ML · WhatsApp
+            </span>
           </div>
-          <div style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.65rem',
-            color: 'var(--text-muted)',
-            marginTop: 2,
-          }}>
-            claude-opus-4-6
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--gold-dim)', letterSpacing: '0.08em' }}>
+              Claude API
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 2 }}>
+              claude-opus-4-6
+            </div>
           </div>
         </div>
       </header>
@@ -113,9 +121,10 @@ export default function App() {
         width: '100%',
         margin: '0 auto',
       }}>
-        {active === 'analysis'     && <AnalysisEngine />}
-        {active === 'pipeline'     && <Pipeline />}
-        {active === 'architecture' && <Architecture />}
+        {active === 'dashboard'   && <Dashboard />}
+        {active === 'atendimento' && <Atendimento />}
+        {active === 'canais'      && <Canais />}
+        {active === 'nuvemshop'  && <NuvemshopPlanning />}
       </main>
     </div>
   )
