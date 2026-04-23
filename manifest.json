@@ -1,0 +1,16 @@
+{
+  "name": "Piccolo Financeiro",
+  "short_name": "Piccolo",
+  "description": "Controle Financeiro - Piccolo Bambino",
+  "start_url": "/catalogo-piccolo-bambino/",
+  "display": "standalone",
+  "background_color": "#FFF5F8",
+  "theme_color": "#FF6B9D",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/FF6B9D/FFFFFF?text=PB",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
