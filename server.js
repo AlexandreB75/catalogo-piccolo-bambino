@@ -199,6 +199,216 @@ app.post('/api/orientar', async (req, res) => {
   }
 })
 
+// ─── Bio Page (link-in-bio próprio) ──────────────────────────────────────────
+
+let bioConfig = {
+  nomeExibido:  'Piccolo Bambino',
+  tagline:      'Moda e acessórios infantis com amor ❤️',
+  corPrimaria:  '#C9A84C',
+  corFundo:     '#0D0D0D',
+  gtmId:        'GTM-PV837LX',
+  links: [
+    { id: 'site',      ativo: true,  icone: '🛒', rotulo: 'Loja online',          url: 'https://www.piccolobambino.com.br', cor: '#C9A84C' },
+    { id: 'whatsapp',  ativo: true,  icone: '💬', rotulo: 'Comprar pelo WhatsApp', url: 'https://wa.me/5500000000000',        cor: '#25D366' },
+    { id: 'ml',        ativo: true,  icone: '🛍️', rotulo: 'Mercado Livre',         url: 'https://www.mercadolivre.com.br',    cor: '#FFC107' },
+    { id: 'loja',      ativo: true,  icone: '📍', rotulo: 'Como chegar na loja',   url: 'https://maps.google.com',            cor: '#4CAF50' },
+    { id: 'instagram', ativo: false, icone: '📸', rotulo: 'Instagram',             url: 'https://instagram.com/piccolobambino', cor: '#E1306C' },
+  ],
+  rodape: 'Loja física aberta de seg a sáb, 9h–18h',
+}
+
+app.get('/api/bio-config', (_req, res) => {
+  res.json(bioConfig)
+})
+
+app.put('/api/bio-config', (req, res) => {
+  const update = req.body
+  if (!update || typeof update !== 'object') {
+    return res.status(400).json({ error: 'Payload inválido.' })
+  }
+  bioConfig = { ...bioConfig, ...update }
+  res.json({ ok: true, config: bioConfig })
+})
+
+app.get('/bio', (_req, res) => {
+  const activeLinks = bioConfig.links.filter(l => l.ativo)
+  const gtmHead = bioConfig.gtmId
+    ? `<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${bioConfig.gtmId}');</script>
+<!-- End Google Tag Manager -->`
+    : ''
+
+  const gtmBody = bioConfig.gtmId
+    ? `<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${bioConfig.gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->`
+    : ''
+
+  const linksHtml = activeLinks.map(l => `
+    <a href="${l.url}" class="btn-link" style="--btn-cor:${l.cor}" target="_blank" rel="noopener"
+       onclick="gtag && gtag('event','bio_click',{link_id:'${l.id}',link_label:'${l.rotulo}'})">
+      <span class="btn-icone">${l.icone}</span>
+      <span class="btn-rotulo">${l.rotulo}</span>
+      <span class="btn-seta">→</span>
+    </a>`).join('\n')
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="${bioConfig.tagline}">
+  <title>${bioConfig.nomeExibido}</title>
+  ${gtmHead}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: ${bioConfig.corFundo};
+      color: #F0EBE0;
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* ── Avatar / Logo ── */
+    .avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, ${bioConfig.corPrimaria}40, ${bioConfig.corPrimaria}10);
+      border: 2px solid ${bioConfig.corPrimaria}60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      margin-bottom: 18px;
+    }
+
+    /* ── Nome e tagline ── */
+    .nome {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: ${bioConfig.corPrimaria};
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 0.82rem;
+      color: #9A9390;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 32px;
+      max-width: 280px;
+    }
+
+    /* ── Links ── */
+    .links {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .btn-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 16px 20px;
+      background: #161616;
+      border: 1px solid var(--btn-cor, ${bioConfig.corPrimaria})30;
+      border-radius: 14px;
+      color: #F0EBE0;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--btn-cor, ${bioConfig.corPrimaria});
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    .btn-link:hover::before, .btn-link:active::before { opacity: 0.08; }
+    .btn-link:active { transform: scale(0.98); }
+
+    .btn-icone { font-size: 1.25rem; flex-shrink: 0; position: relative; z-index: 1; }
+
+    .btn-rotulo { flex: 1; position: relative; z-index: 1; }
+
+    .btn-seta {
+      font-size: 0.9rem;
+      color: var(--btn-cor, ${bioConfig.corPrimaria});
+      opacity: 0.7;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.15s;
+    }
+    .btn-link:hover .btn-seta { transform: translateX(3px); }
+
+    /* ── Rodapé ── */
+    .rodape {
+      font-size: 0.72rem;
+      color: #524E4A;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .rodape strong { color: #8B7535; }
+  </style>
+</head>
+<body>
+  ${gtmBody}
+
+  <div class="container">
+    <div class="avatar">👶</div>
+
+    <h1 class="nome">${bioConfig.nomeExibido}</h1>
+    <p class="tagline">${bioConfig.tagline}</p>
+
+    <div class="links">
+      ${linksHtml}
+    </div>
+
+    <p class="rodape">
+      ${bioConfig.rodape}<br>
+      <strong>${bioConfig.nomeExibido}</strong>
+    </p>
+  </div>
+</body>
+</html>`
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8')
+  res.send(html)
+})
+
 // ─── Servir build React em produção ─────────────────────────────────────────
 
 if (isProd) {
