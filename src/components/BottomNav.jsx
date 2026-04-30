@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 
 const ITEMS = [
-  { icon: '🏠', label: 'Início',  key: 'home',   path: '/' },
-  { icon: '📋', label: 'A Pagar', key: 'contas',  path: '/contas' },
-  { icon: '💰', label: 'Vendas',  key: 'vendas',  path: '/vendas' },
+  { icon: '🏠', label: 'Início',   key: 'home',      path: '/' },
+  { icon: '📋', label: 'A Pagar',  key: 'contas',    path: '/contas' },
+  { icon: '💰', label: 'Vendas',   key: 'vendas',    path: '/vendas' },
+  { icon: '🔗', label: 'Bio Page', key: 'admin-bio', path: '/admin-bio' },
 ]
 
 export default function BottomNav({ active }) {
@@ -24,7 +25,7 @@ export default function BottomNav({ active }) {
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', flexDirection: 'column', alignItems: 'center',
-            gap: 2, padding: '4px 20px',
+            gap: 2, padding: '4px 16px',
           }}
         >
           <span style={{ fontSize: 22 }}>{item.icon}</span>
