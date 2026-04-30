@@ -8,6 +8,7 @@ import LancarDocumento from './components/LancarDocumento'
 import ContasPagar from './components/ContasPagar'
 import Vendas from './components/Vendas'
 import BioPagina from './components/BioPagina'
+import AdminBio from './components/AdminBio'
 
 export const AuthContext = createContext(null)
 export const useAuth = () => useContext(AuthContext)
@@ -31,14 +32,15 @@ export default function App() {
     <AuthContext.Provider value={{ user }}>
       <HashRouter>
         <Routes>
-          {/* rota pública — sem autenticação */}
-          <Route path="/bio"    element={<BioPagina />} />
+          {/* Rota pública — sem autenticação */}
+          <Route path="/bio"       element={<BioPagina />} />
 
-          <Route path="/login"  element={!user ? <Login />           : <Navigate to="/" />} />
-          <Route path="/"       element={ user ? <Dashboard />       : <Navigate to="/login" />} />
-          <Route path="/lancar" element={ user ? <LancarDocumento /> : <Navigate to="/login" />} />
-          <Route path="/contas" element={ user ? <ContasPagar />     : <Navigate to="/login" />} />
-          <Route path="/vendas" element={ user ? <Vendas />          : <Navigate to="/login" />} />
+          <Route path="/login"     element={!user ? <Login />           : <Navigate to="/" />} />
+          <Route path="/"          element={ user ? <Dashboard />       : <Navigate to="/login" />} />
+          <Route path="/lancar"    element={ user ? <LancarDocumento /> : <Navigate to="/login" />} />
+          <Route path="/contas"    element={ user ? <ContasPagar />     : <Navigate to="/login" />} />
+          <Route path="/vendas"    element={ user ? <Vendas />          : <Navigate to="/login" />} />
+          <Route path="/admin-bio" element={ user ? <AdminBio />        : <Navigate to="/login" />} />
         </Routes>
       </HashRouter>
     </AuthContext.Provider>
