@@ -28,6 +28,20 @@ function decodeBoleto(code) {
   return null
 }
 
+// ── Formatar como moeda pt-BR enquanto o usuário digita ──────────────────────
+function formatarValor(raw) {
+  const digits = raw.replace(/\D/g, '')
+  if (!digits) return ''
+  const num = parseInt(digits, 10) / 100
+  return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+// ── Converter string pt-BR para número ───────────────────────────────────────
+// '1.000,00' → remove pontos → '1000,00' → troca vírgula → '1000.00' → 1000
+function parseBRL(str) {
+  return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0
+}
+
 const labelStyle = { display: 'block', fontSize: 13, fontWeight: 'bold', color: '#666', marginBottom: 6 }
 const inputStyle = {
   width: '100%', padding: '12px 14px', fontSize: 15,
@@ -46,6 +60,7 @@ export default function LancarDocumento() {
   const [scanning,  setScanning] = useState(false)
   const [scanMsg,   setScanMsg]  = useState('')
   const [salvando,  setSalv]     = useState(false)
+  const [aviso,     setAviso]    = useState('')
   const scannerRef = useRef(null)
 
   useEffect(() => () => { scannerRef.current?.clear().catch(() => {}) }, [])
@@ -71,7 +86,7 @@ export default function LancarDocumento() {
       const boleto = decodeBoleto(clean)
       setScanMsg('Boleto lido!')
       if (boleto) {
-        setValor(boleto.valor.toFixed(2).replace('.', ','))
+        setValor(boleto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
         setVenc(boleto.vencimento)
         if (!tipo) setTipo('boleto')
       }
@@ -93,19 +108,37 @@ export default function LancarDocumento() {
     if (!file) return
     setFotoFile(file)
     setFotoUrl(URL.createObjectURL(file))
+    setAviso('')
+  }
+
+  // ── Bug fix 3: auto-formatar enquanto digita ─────────────────────────────
+  function handleValorChange(e) {
+    setValor(formatarValor(e.target.value))
   }
 
   async function salvar() {
     if (!tipo || !valor) return
     setSalv(true)
-    try {
-      let photoUrl = null
-      if (fotoFile) {
+    setAviso('')
+
+    // ── Bug fix 1: upload de foto em bloco separado ───────────────────────
+    // Se o upload falhar (CORS, regras do Storage) o documento ainda é salvo.
+    let photoUrl = null
+    if (fotoFile) {
+      try {
         const sRef = storageRef(storage, `docs/${Date.now()}_${fotoFile.name}`)
         await uploadBytes(sRef, fotoFile)
         photoUrl = await getDownloadURL(sRef)
+      } catch (uploadErr) {
+        console.warn('[foto] upload falhou, salvando sem foto:', uploadErr)
+        setAviso('Foto não pôde ser enviada — documento salvo sem imagem.')
       }
-      const valorNum = parseFloat(valor.replace(',', '.').replace(/[^0-9.]/g, '')) || 0
+    }
+
+    // ── Bug fix 2: parser correto para formato pt-BR ──────────────────────
+    const valorNum = parseBRL(valor)
+
+    try {
       await addDoc(collection(db, 'documentos'), {
         tipo,
         descricao: descricao || tipo,
@@ -117,8 +150,8 @@ export default function LancarDocumento() {
       })
       navigate('/')
     } catch (e) {
-      console.error(e)
-      alert('Erro ao salvar. Tente novamente.')
+      console.error('[salvar] erro ao gravar no Firestore:', e)
+      alert('Erro ao salvar. Verifique sua conexão e tente novamente.')
     } finally {
       setSalv(false)
     }
@@ -141,6 +174,17 @@ export default function LancarDocumento() {
       </div>
 
       <div style={{ padding: 16, maxWidth: 520, margin: '0 auto' }}>
+
+        {aviso && (
+          <div style={{
+            background: '#FFF3CD', border: '1px solid #FFC107',
+            borderRadius: 10, padding: '10px 14px', marginBottom: 16,
+            fontSize: 13, color: '#856404',
+          }}>
+            ⚠️ {aviso}
+          </div>
+        )}
+
         <label style={labelStyle}>Categoria *</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
           {CATS.map(c => (
@@ -184,12 +228,13 @@ export default function LancarDocumento() {
         </div>
 
         <div style={{ marginBottom: 20 }}>
-          <label style={labelStyle}>Foto do Documento</label>
+          <label style={labelStyle}>Foto do Documento <span style={{ fontWeight: 'normal', color: '#aaa' }}>(opcional)</span></label>
           <label style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: 8, padding: 14, background: 'white',
             border: '2px dashed #FF6B9D', borderRadius: 12,
             cursor: 'pointer', fontSize: 14, color: '#FF6B9D',
+            minHeight: 56,
           }}>
             {fotoUrl
               ? <img src={fotoUrl} alt="preview" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
@@ -197,6 +242,14 @@ export default function LancarDocumento() {
             }
             <input type="file" accept="image/*" capture="environment" onChange={handleFoto} style={{ display: 'none' }} />
           </label>
+          {fotoFile && (
+            <button
+              onClick={() => { setFotoFile(null); setFotoUrl('') }}
+              style={{ marginTop: 6, background: 'none', border: 'none', color: '#aaa', fontSize: 12, cursor: 'pointer' }}
+            >
+              ✕ Remover foto
+            </button>
+          )}
         </div>
 
         <div style={{ marginBottom: 16 }}>
@@ -205,7 +258,7 @@ export default function LancarDocumento() {
           </label>
           <input
             type="text"
-            placeholder={tipo === 'aluguel' ? 'Ex: Aluguel do ponto comercial' : tipo === 'funcionario' ? 'Nome do funcionário' : 'Ex: Fornecedor ABC Ltda'}
+            placeholder={tipo === 'funcionario' ? 'Nome do funcionário' : 'Ex: Fornecedor ABC'}
             value={descricao}
             onChange={e => setDesc(e.target.value)}
             style={inputStyle}
@@ -217,10 +270,10 @@ export default function LancarDocumento() {
             <label style={labelStyle}>Valor (R$) *</label>
             <input
               type="text"
-              inputMode="decimal"
+              inputMode="numeric"
               placeholder="0,00"
               value={valor}
-              onChange={e => setValor(e.target.value)}
+              onChange={handleValorChange}
               style={inputStyle}
             />
           </div>
