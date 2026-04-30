@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard'
 import LancarDocumento from './components/LancarDocumento'
 import ContasPagar from './components/ContasPagar'
 import Vendas from './components/Vendas'
+import BioPagina from './components/BioPagina'
 
 export const AuthContext = createContext(null)
 export const useAuth = () => useContext(AuthContext)
@@ -30,6 +31,9 @@ export default function App() {
     <AuthContext.Provider value={{ user }}>
       <HashRouter>
         <Routes>
+          {/* rota pública — sem autenticação */}
+          <Route path="/bio"    element={<BioPagina />} />
+
           <Route path="/login"  element={!user ? <Login />           : <Navigate to="/" />} />
           <Route path="/"       element={ user ? <Dashboard />       : <Navigate to="/login" />} />
           <Route path="/lancar" element={ user ? <LancarDocumento /> : <Navigate to="/login" />} />
