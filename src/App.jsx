@@ -9,6 +9,7 @@ import ContasPagar from './components/ContasPagar'
 import Vendas from './components/Vendas'
 import BioPagina from './components/BioPagina'
 import AdminBio from './components/AdminBio'
+import MonteSeuQuarto from './components/MonteSeuQuarto'
 
 export const AuthContext = createContext(null)
 export const useAuth = () => useContext(AuthContext)
@@ -32,8 +33,9 @@ export default function App() {
     <AuthContext.Provider value={{ user }}>
       <HashRouter>
         <Routes>
-          {/* Rota pública — sem autenticação */}
-          <Route path="/bio"       element={<BioPagina />} />
+          {/* Rotas públicas — sem autenticação */}
+          <Route path="/bio"    element={<BioPagina />} />
+          <Route path="/quarto" element={<MonteSeuQuarto />} />
 
           <Route path="/login"     element={!user ? <Login />           : <Navigate to="/" />} />
           <Route path="/"          element={ user ? <Dashboard />       : <Navigate to="/login" />} />

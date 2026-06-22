@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 const ITEMS = [
   { icon: '🏠', label: 'Início',   key: 'home',      path: '/' },
+  { icon: '🛏️', label: 'Quarto',   key: 'quarto',    path: '/quarto' },
   { icon: '📋', label: 'A Pagar',  key: 'contas',    path: '/contas' },
   { icon: '💰', label: 'Vendas',   key: 'vendas',    path: '/vendas' },
   { icon: '🔗', label: 'Bio Page', key: 'admin-bio', path: '/admin-bio' },
