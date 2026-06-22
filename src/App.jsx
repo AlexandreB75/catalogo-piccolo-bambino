@@ -21,7 +21,10 @@ export default function App() {
     return onAuthStateChanged(auth, u => setUser(u ?? null))
   }, [])
 
-  if (user === undefined) {
+  const hash = window.location.hash.replace('#', '') || '/'
+  const isPublic = hash.startsWith('/bio') || hash.startsWith('/quarto')
+
+  if (user === undefined && !isPublic) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#FFF5F8' }}>
         <span style={{ fontSize: 48 }}>🌸</span>
