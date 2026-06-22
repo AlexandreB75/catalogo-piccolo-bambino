@@ -5,12 +5,14 @@ import Canais from './components/Canais'
 import NuvemshopPlanning from './components/NuvemshopPlanning'
 import Orquestrador from './components/Orquestrador'
 import BioPagina from './components/BioPagina'
+import MonteSeuQuarto from './components/MonteSeuQuarto'
 
 const TABS = [
   { id: 'dashboard',     label: 'Painel',          icon: '◎' },
   { id: 'orquestrador',  label: 'Orquestrador',    icon: '◉' },
   { id: 'atendimento',   label: 'Atendimento IA',  icon: '◈' },
   { id: 'canais',        label: 'Canais',           icon: '⬡' },
+  { id: 'quarto',        label: 'Monte o Quarto',  icon: '🛏' },
   { id: 'bio',           label: 'Bio Page',         icon: '◑' },
   { id: 'nuvemshop',    label: 'Avaliação NS',     icon: '◇' },
 ]
@@ -129,6 +131,7 @@ export default function App() {
         {active === 'orquestrador' && <Orquestrador />}
         {active === 'atendimento'  && <Atendimento />}
         {active === 'canais'       && <Canais />}
+        {active === 'quarto'       && <MonteSeuQuarto />}
         {active === 'bio'          && <BioPagina />}
         {active === 'nuvemshop'   && <NuvemshopPlanning />}
       </main>
