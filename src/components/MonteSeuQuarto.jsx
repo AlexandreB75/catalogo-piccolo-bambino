@@ -1,5 +1,61 @@
 import { useState } from 'react'
 
+// ── Estilos de quarto (fotos reais) ──────────────────────────────────────────
+
+const BASE = import.meta.env.BASE_URL || '/'
+
+const ESTILOS = [
+  {
+    id: 'classico',
+    nome: 'Clássico',
+    descricao: 'Creme & Bege — elegância atemporal',
+    foto: `${BASE}produtos/quarto-classico.jpeg`,
+    cor: '#F5F0E8',
+  },
+  {
+    id: 'raizes',
+    nome: 'Linha Raízes',
+    descricao: 'Madeira & palha — naturalidade e aconchego',
+    foto: `${BASE}produtos/linha-raizes.png`,
+    cor: '#C8A878',
+  },
+  {
+    id: 'sora',
+    nome: 'Linha Sora',
+    descricao: 'Bege areia — design atemporal e versátil',
+    foto: `${BASE}produtos/linha-sora.png`,
+    cor: '#C8B898',
+  },
+  {
+    id: 'vero',
+    nome: 'Linha Vero',
+    descricao: 'Madeira natural — texturas e aconchego',
+    foto: `${BASE}produtos/linha-vero.png`,
+    cor: '#8B6A4A',
+  },
+  {
+    id: 'natu',
+    nome: 'Linha Natu',
+    descricao: 'Rose & terracota — delicadeza e elegância',
+    foto: `${BASE}produtos/linha-natu.png`,
+    cor: '#B87060',
+  },
+  {
+    id: 'arte',
+    nome: 'Linha Art',
+    descricao: 'Madeira natural — design sofisticado',
+    foto: `${BASE}produtos/linha-art.png`,
+    cor: '#EDE0CC',
+  },
+  {
+    id: 'personalizado',
+    nome: 'Personalizar',
+    descricao: 'Monte do seu jeito — escolha cada item',
+    foto: null,
+    cor: '#F8F5F0',
+  },
+]
+
 // ── Catálogo ──────────────────────────────────────────────────────────────────
 
 const PAPEIS_PAREDE = [
@@ -209,6 +265,7 @@ function Section({ label, icon, items, selected, onSelect, extra }) {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function MonteSeuQuarto() {
+  const [estilo,   setEstilo]   = useState(null)
   const [parede,   setParede]   = useState(PAPEIS_PAREDE[0])
   const [berco,    setBerco]    = useState(null)
   const [comoda,   setComoda]   = useState(null)
@@ -225,33 +282,41 @@ export default function MonteSeuQuarto() {
 
   const total = itens.reduce((s, i) => s + i.preco, 0)
 
-  function limpar() { setBerco(null); setComoda(null); setPoltrona(null); setKit(null); setParede(PAPEIS_PAREDE[0]); setEnviado(false) }
+  function limpar() {
+    setEstilo(null); setBerco(null); setComoda(null)
+    setPoltrona(null); setKit(null); setParede(PAPEIS_PAREDE[0]); setEnviado(false)
+  }
 
   function enviarWpp() {
-    if (!itens.length) return
-    const linhas = itens.map(i => `• ${i.nome} — ${fmt(i.preco)}`).join('\n')
-    const msg = `Olá! Montei um projeto de quarto na Piccolo Bambino e tenho interesse:\n\n${linhas}\n\nCor da parede: ${parede?.nome}\nTotal estimado: ${fmt(total)}\n\nPoderia me passar mais informações?`
+    const estiloNome = estilo ? `Estilo: ${estilo.nome}\n` : ''
+    const itensLinhas = itens.length
+      ? itens.map(i => `• ${i.nome} — ${fmt(i.preco)}`).join('\n')
+      : '(nenhum item selecionado ainda)'
+    const msg = `Olá! Montei um projeto de quarto na Piccolo Bambino:\n\n${estiloNome}${itensLinhas}${itens.length ? `\n\nTotal estimado: ${fmt(total)}` : ''}\n\nPoderia me passar mais informações?`
     window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank')
     setEnviado(true)
   }
+
+  const modoPersonalizado = estilo?.id === 'personalizado'
+  const fotoEstilo = estilo?.foto
 
   return (
     <div style={{ minHeight: '100vh', background: '#FFF5F8', paddingBottom: 100 }}>
 
       {/* Header */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #f0e0ea', padding: '18px 20px 14px', position: 'sticky', top: 0, zIndex: 10 }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid #f0e0ea', padding: '16px 20px 12px', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h1 style={{ fontFamily: 'Georgia,serif', fontSize: '1.3rem', color: '#FF6B9D', margin: 0 }}>
+            <h1 style={{ fontFamily: 'Georgia,serif', fontSize: '1.25rem', color: '#FF6B9D', margin: 0 }}>
               Monte seu Quarto
             </h1>
-            <p style={{ fontSize: '0.72rem', color: '#aaa', margin: '3px 0 0', fontFamily: 'monospace' }}>
-              Piccolo Bambino · Itapema/SC
+            <p style={{ fontSize: '0.7rem', color: '#bbb', margin: '2px 0 0', fontFamily: 'monospace' }}>
+              Piccolo Bambino · Meia Praia, Itapema/SC
             </p>
           </div>
-          {itens.length > 0 && (
-            <button onClick={limpar} style={{ background: 'none', border: '1px solid #f0e0ea', borderRadius: 8, padding: '6px 12px', fontSize: '0.75rem', color: '#aaa', cursor: 'pointer' }}>
-              ↺ Limpar
+          {(estilo || itens.length > 0) && (
+            <button onClick={limpar} style={{ background: 'none', border: '1px solid #f0e0ea', borderRadius: 8, padding: '6px 12px', fontSize: '0.72rem', color: '#bbb', cursor: 'pointer' }}>
+              ↺ Recomeçar
             </button>
           )}
         </div>
@@ -259,120 +324,200 @@ export default function MonteSeuQuarto() {
 
       <div style={{ padding: '16px 16px 0' }}>
 
-        {/* Preview do quarto */}
-        <RoomPreview parede={parede} berco={berco} comoda={comoda} poltrona={poltrona} kit={kit} />
-
-        {/* Resumo flutuante */}
-        {itens.length > 0 && (
-          <div style={{ background: '#fff', border: '1px solid #f0e0ea', borderRadius: 14, padding: '14px 16px', marginTop: 14 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {itens.map(i => (
-                <div key={i.nome} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
-                  <span style={{ color: '#555' }}>{i.nome}</span>
-                  <span style={{ color: '#FF6B9D', fontFamily: 'monospace', fontWeight: 600 }}>{fmt(i.preco)}</span>
-                </div>
-              ))}
-              <div style={{ borderTop: '1px solid #f5e8f0', paddingTop: 10, marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: '#aaa' }}>Total estimado</span>
-                <span style={{ fontFamily: 'monospace', fontSize: '1.1rem', color: '#FF6B9D', fontWeight: 700 }}>{fmt(total)}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={enviarWpp}
-              style={{
-                width: '100%', marginTop: 12,
-                background: enviado ? '#25D366' : '#FF6B9D',
-                border: 'none', borderRadius: 12,
-                padding: '13px 0', color: '#fff',
-                fontWeight: 700, fontSize: '0.95rem',
-                cursor: 'pointer', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', gap: 8,
-              }}
-            >
-              {enviado ? '✓ Enviado no WhatsApp!' : '💬 Enviar projeto no WhatsApp'}
-            </button>
-          </div>
-        )}
-
-        {/* Seletores */}
-        <div style={{ background: '#fff', borderRadius: 16, padding: 20, marginTop: 14, display: 'flex', flexDirection: 'column', gap: 20 }}>
-
-          {/* Papel de parede */}
-          <div style={{ borderBottom: '1px solid #f5e8f0', paddingBottom: 20 }}>
-            <p style={{ fontFamily: 'monospace', fontSize: '0.68rem', color: '#CC8899', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
-              🎨 Cor da parede
-            </p>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              {PAPEIS_PAREDE.map(pp => (
-                <button key={pp.id} onClick={() => setParede(pp)} title={pp.nome}
-                  style={{
-                    width: 40, height: 40, borderRadius: 10,
-                    background: pp.cor,
-                    border: parede?.id === pp.id ? '3px solid #FF6B9D' : '2px solid #f0e0ea',
-                    cursor: 'pointer', overflow: 'hidden', position: 'relative',
-                    boxShadow: parede?.id === pp.id ? '0 0 0 2px #FF6B9D' : 'none',
-                  }}
-                >
-                  {parede?.id === pp.id && <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem' }}>✓</span>}
-                </button>
-              ))}
-            </div>
-            <p style={{ fontSize: '0.72rem', color: '#aaa', marginTop: 6 }}>{parede?.nome}</p>
-          </div>
-
-          {/* Berço */}
-          <Section label="Berço" icon="🛏️" items={BERCOS} selected={berco} onSelect={setBerco} />
-
-          {/* Cômoda */}
-          <Section label="Cômoda" icon="🗄️" items={COMODAS} selected={comoda} onSelect={setComoda} />
-
-          {/* Poltrona */}
-          <Section label="Poltrona de Amamentação" icon="🪑" items={POLTRONAS} selected={poltrona} onSelect={setPoltrona} />
-
-          {/* Kit roupa de cama */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <p style={{ fontFamily: 'monospace', fontSize: '0.68rem', color: '#CC8899', letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
-                🧸 Kit Roupa de Cama
-              </p>
-              {kit && <button onClick={() => setKit(null)} style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', fontSize: '0.7rem' }}>✕ limpar</button>}
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {KITS.map(k => (
-                <button key={k.id} onClick={() => setKit(kit?.id === k.id ? null : k)}
-                  style={{
-                    background: kit?.id === k.id ? '#FF6B9D' : '#fff',
-                    border: `1.5px solid ${kit?.id === k.id ? '#FF6B9D' : '#f0e0ea'}`,
-                    borderRadius: 10, padding: '8px 12px',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
-                  }}
-                >
-                  <div style={{ width: 22, height: 22, borderRadius: 4, background: k.cor, border: `2px solid ${k.corAcento}`, flexShrink: 0 }} />
-                  <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontSize: '0.78rem', fontWeight: 500, color: kit?.id === k.id ? '#fff' : '#444' }}>{k.nome}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: kit?.id === k.id ? 'rgba(255,255,255,0.8)' : '#FF6B9D', fontWeight: 600 }}>{fmt(k.preco)}</div>
+        {/* PASSO 1 — Escolha o estilo */}
+        <div style={{ background: '#fff', borderRadius: 16, padding: 18, marginBottom: 14 }}>
+          <p style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#CC8899', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14 }}>
+            1 — Escolha um estilo de quarto
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {ESTILOS.map(e => (
+              <button
+                key={e.id}
+                onClick={() => setEstilo(e)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  background: estilo?.id === e.id ? '#FFF0F5' : '#fff',
+                  border: `2px solid ${estilo?.id === e.id ? '#FF6B9D' : '#f0e0ea'}`,
+                  borderRadius: 14, padding: 12,
+                  cursor: 'pointer', textAlign: 'left',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {e.foto ? (
+                  <img
+                    src={e.foto}
+                    alt={e.nome}
+                    style={{ width: 72, height: 72, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }}
+                  />
+                ) : (
+                  <div style={{ width: 72, height: 72, borderRadius: 10, background: '#FFF0F5', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem' }}>
+                    🎨
                   </div>
-                </button>
-              ))}
-            </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem', color: estilo?.id === e.id ? '#FF6B9D' : '#333' }}>
+                    {e.nome}
+                    {estilo?.id === e.id && <span style={{ marginLeft: 8, fontSize: '0.75rem' }}>✓</span>}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#aaa', marginTop: 3, lineHeight: 1.4 }}>{e.descricao}</div>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
+        {/* Foto do estilo selecionado (tela cheia) */}
+        {fotoEstilo && (
+          <div style={{ borderRadius: 16, overflow: 'hidden', marginBottom: 14, position: 'relative' }}>
+            <img
+              src={fotoEstilo}
+              alt={estilo.nome}
+              style={{ width: '100%', display: 'block', maxHeight: 320, objectFit: 'cover', objectPosition: 'center top' }}
+            />
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.55), transparent)',
+              padding: '20px 16px 14px',
+            }}>
+              <div style={{ color: '#fff', fontFamily: 'Georgia,serif', fontSize: '1.1rem', fontWeight: 600 }}>{estilo.nome}</div>
+              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', marginTop: 2 }}>{estilo.descricao}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Preview geométrico (modo personalizado) */}
+        {modoPersonalizado && (
+          <div style={{ marginBottom: 14 }}>
+            <RoomPreview parede={parede} berco={berco} comoda={comoda} poltrona={poltrona} kit={kit} />
+          </div>
+        )}
+
+        {/* PASSO 2 — Personalize (aparece após escolher estilo) */}
+        {estilo && (
+          <>
+            <div style={{ background: '#fff', borderRadius: 16, padding: 18, marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <p style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#CC8899', letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
+                2 — Personalize os itens
+              </p>
+
+              {/* Cor da parede (só no modo personalizado) */}
+              {modoPersonalizado && (
+                <div style={{ borderBottom: '1px solid #f5e8f0', paddingBottom: 18 }}>
+                  <p style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#CC8899', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
+                    🎨 Cor da parede
+                  </p>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    {PAPEIS_PAREDE.map(pp => (
+                      <button key={pp.id} onClick={() => setParede(pp)} title={pp.nome}
+                        style={{
+                          width: 38, height: 38, borderRadius: 10,
+                          background: pp.cor,
+                          border: parede?.id === pp.id ? '3px solid #FF6B9D' : '2px solid #f0e0ea',
+                          cursor: 'pointer', position: 'relative',
+                          boxShadow: parede?.id === pp.id ? '0 0 0 2px #FF6B9D' : 'none',
+                        }}
+                      >
+                        {parede?.id === pp.id && <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: '0.7rem', color: '#aaa', marginTop: 5 }}>{parede?.nome}</p>
+                </div>
+              )}
+
+              <Section label="Berço" icon="🛏️" items={BERCOS} selected={berco} onSelect={setBerco} />
+              <Section label="Cômoda" icon="🗄️" items={COMODAS} selected={comoda} onSelect={setComoda} />
+              <Section label="Poltrona de Amamentação" icon="🪑" items={POLTRONAS} selected={poltrona} onSelect={setPoltrona} />
+
+              {/* Kit roupa de cama */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <p style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#CC8899', letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
+                    🧸 Kit Roupa de Cama
+                  </p>
+                  {kit && <button onClick={() => setKit(null)} style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', fontSize: '0.7rem' }}>✕</button>}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {KITS.map(k => (
+                    <button key={k.id} onClick={() => setKit(kit?.id === k.id ? null : k)}
+                      style={{
+                        background: kit?.id === k.id ? '#FF6B9D' : '#fff',
+                        border: `1.5px solid ${kit?.id === k.id ? '#FF6B9D' : '#f0e0ea'}`,
+                        borderRadius: 10, padding: '8px 12px',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
+                      }}
+                    >
+                      <div style={{ width: 20, height: 20, borderRadius: 4, background: k.cor, border: `2px solid ${k.corAcento}`, flexShrink: 0 }} />
+                      <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 500, color: kit?.id === k.id ? '#fff' : '#444' }}>{k.nome}</div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '0.62rem', color: kit?.id === k.id ? 'rgba(255,255,255,0.8)' : '#FF6B9D', fontWeight: 600 }}>{fmt(k.preco)}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Resumo e WhatsApp */}
+            <div style={{ background: '#fff', border: '1px solid #f0e0ea', borderRadius: 16, padding: '16px 18px', marginBottom: 14 }}>
+              <p style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#CC8899', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
+                3 — Seu projeto
+              </p>
+              {itens.length === 0 ? (
+                <p style={{ fontSize: '0.8rem', color: '#ccc', fontStyle: 'italic' }}>Selecione os itens acima</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                  {estilo && <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                    <span style={{ color: '#aaa' }}>Estilo</span>
+                    <span style={{ color: '#555' }}>{estilo.nome}</span>
+                  </div>}
+                  {itens.map(i => (
+                    <div key={i.nome} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#555' }}>{i.nome}</span>
+                      <span style={{ color: '#FF6B9D', fontFamily: 'monospace', fontWeight: 600 }}>{fmt(i.preco)}</span>
+                    </div>
+                  ))}
+                  <div style={{ borderTop: '1px solid #f5e8f0', paddingTop: 10, marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.7rem', color: '#aaa' }}>Total estimado</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '1.1rem', color: '#FF6B9D', fontWeight: 700 }}>{fmt(total)}</span>
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={enviarWpp}
+                style={{
+                  width: '100%', marginTop: 4,
+                  background: enviado ? '#25D366' : '#FF6B9D',
+                  border: 'none', borderRadius: 12,
+                  padding: '13px 0', color: '#fff',
+                  fontWeight: 700, fontSize: '0.9rem',
+                  cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', gap: 8,
+                }}
+              >
+                {enviado ? '✓ Projeto enviado!' : '💬 Enviar projeto no WhatsApp'}
+              </button>
+              <p style={{ fontSize: '0.68rem', color: '#ccc', textAlign: 'center', marginTop: 8 }}>
+                Abre o WhatsApp com seus itens selecionados
+              </p>
+            </div>
+          </>
+        )}
+
         {/* Banner projeto 3D */}
-        <div style={{ background: 'linear-gradient(135deg, #FF6B9D, #FFB6C1)', borderRadius: 16, padding: 20, marginTop: 14, color: '#fff' }}>
+        <div style={{ background: 'linear-gradient(135deg, #FF6B9D, #FFB6C1)', borderRadius: 16, padding: 20, marginTop: 4, color: '#fff', marginBottom: 14 }}>
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
             <span style={{ fontSize: '1.5rem' }}>📐</span>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 6 }}>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: 5 }}>
                 Quer ver em render 3D profissional?
               </div>
-              <p style={{ fontSize: '0.82rem', lineHeight: 1.5, margin: '0 0 12px', opacity: 0.9 }}>
-                Nosso designer cria o quarto em 3D do jeito exato que vai ficar — e os <strong>R$950 do projeto viram crédito</strong> para comprar os móveis.
+              <p style={{ fontSize: '0.78rem', lineHeight: 1.5, margin: '0 0 10px', opacity: 0.9 }}>
+                Nosso designer cria o quarto em 3D exatamente como vai ficar — e os <strong>R$950 viram crédito</strong> para comprar os móveis aqui na loja.
               </p>
               <button
-                onClick={() => window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Olá! Tenho interesse no projeto 3D do quarto de bebê. Como funciona?')}`, '_blank')}
-                style={{ background: '#fff', border: 'none', borderRadius: 10, padding: '10px 18px', color: '#FF6B9D', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+                onClick={() => window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Olá! Tenho interesse no projeto 3D do quarto. Como funciona?')}`, '_blank')}
+                style={{ background: '#fff', border: 'none', borderRadius: 10, padding: '9px 16px', color: '#FF6B9D', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
               >
                 Quero saber mais →
               </button>
